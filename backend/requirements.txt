@@ -1,0 +1,6 @@
+xgboost
+fastapi
+uvicorn
+shap
+joblib
+pydantic
