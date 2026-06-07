@@ -94,10 +94,3 @@ carbon-credit-predictor/
 
 Weekly data from April 2015 to April 2026 — 577 observations.
 
-
-## Author
-
-**Rajdeep**
-B.Tech | Data Science & Machine Learning
-[GitHub](#) · [LinkedIn](#)
-```
