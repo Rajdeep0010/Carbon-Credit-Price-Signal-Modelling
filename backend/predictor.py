@@ -4,7 +4,7 @@ import pandas as pd
 import shap
 import os
 
-# ── Feature order must match training exactly ───────────────────────────────
+#Features
 FEATURES = [
     'gas_price_lag1',
     'gas_price_volatility',
@@ -50,14 +50,11 @@ class CarbonPredictor:
         print(f"[predictor] Loading scaler from {scaler_path}")
         self.scaler = joblib.load(scaler_path)
 
-        # Build SHAP explainer once — expensive operation, do it at startup
         print("[predictor] Building SHAP TreeExplainer...")
         self.explainer  = shap.TreeExplainer(self.model)
         self.base_value = float(self.explainer.expected_value)
         print(f"[predictor] Ready. SHAP base value: {self.base_value:.4f}%")
 
-        # Pre-compute global SHAP summary
-        # (loaded from a small reference dataset embedded here)
         self._global_shap = {
             'momentum_4w'          : {'mean_abs': 0.9193, 'mean': -0.3755},
             'momentum_12w'         : {'mean_abs': 0.2649, 'mean': -0.1917},
@@ -116,21 +113,16 @@ class CarbonPredictor:
         4. SHAP values for this specific prediction
         5. Return structured result
         """
-        # Step 1 — build feature row
         X_raw, cop_urgency = self._build_feature_row(request_data)
 
-        # Step 2 — scale (using train-fitted scaler)
         X_scaled = pd.DataFrame(
             self.scaler.transform(X_raw),
             columns=FEATURES
         )
 
-        # Step 3 — predict
         prediction = float(self.model.predict(X_scaled)[0])
 
-        # Step 4 — SHAP for this single row
         shap_vals_raw = self.explainer.shap_values(X_scaled)
-        # shap_vals_raw shape: (1, 11) — one row, one value per feature
         shap_row = shap_vals_raw[0]
 
         shap_dict = {
@@ -138,7 +130,6 @@ class CarbonPredictor:
             for feat, val in zip(FEATURES, shap_row)
         }
 
-        # Sanity check: base + sum(shap) ≈ prediction
         reconstructed = self.base_value + sum(shap_row)
         if abs(reconstructed - prediction) > 0.01:
             print(f"[predictor] SHAP sanity check warning: "
