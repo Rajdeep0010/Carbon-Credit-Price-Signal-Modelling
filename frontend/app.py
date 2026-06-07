@@ -6,7 +6,7 @@ import numpy as np
 import time
 import os
 
-# ── Page config — MUST be first Streamlit command ──────────────────────────
+
 st.set_page_config(
     page_title="Carbon Signal",
     page_icon="🌿",
@@ -14,10 +14,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ── Backend URL from Streamlit secrets ─────────────────────────────────────
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
-# ── Global CSS — complete Streamlit override ────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap');
@@ -255,8 +253,6 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-
-# ── Reusable HTML components ────────────────────────────────────────────────
 
 def render_header():
     st.markdown("""
@@ -668,14 +664,11 @@ tab_predict, tab_performance, tab_about = st.tabs([
 ])
 
 
-# ──────────────────────────────────────────────────────────────────────────
-#  TAB 1 — PREDICT
-# ──────────────────────────────────────────────────────────────────────────
+#Prediction
 with tab_predict:
 
     col_inputs, col_gap, col_results = st.columns([4, 0.2, 6])
 
-    # ── Input panel ─────────────────────────────────────────────────────
     with col_inputs:
         st.markdown("""
         <div style="
@@ -702,7 +695,6 @@ with tab_predict:
         </div>
         """, unsafe_allow_html=True)
 
-        # ── Market Conditions ──────────────────────────────────────────
         section_label("⚡  Energy Market")
 
         gas_price_lag1 = st.slider(
@@ -787,7 +779,6 @@ with tab_predict:
         st.markdown("<br>", unsafe_allow_html=True)
         predict_btn = st.button("🔮  GENERATE PREDICTION")
 
-    # ── Results panel ────────────────────────────────────────────────────
     with col_results:
 
         if not predict_btn:
@@ -821,7 +812,6 @@ with tab_predict:
             """, unsafe_allow_html=True)
 
         else:
-            # ── Collect inputs ─────────────────────────────────────────
             payload = {
                 "gas_price_lag1"       : gas_price_lag1,
                 "gas_price_volatility" : gas_price_volatility,
@@ -852,13 +842,10 @@ with tab_predict:
                     base_value = result["base_value"]
                     shap_dict  = result["shap_values"]
 
-                    # ── Prediction card ────────────────────────────────
                     render_prediction_card(pred_pct, direction)
 
-                    # ── SHAP waterfall ─────────────────────────────────
                     render_shap_waterfall(shap_dict, base_value, pred_pct)
 
-                    # ── Scenario context ───────────────────────────────
                     section_label("🗺️  Scenario Context")
                     render_scenario_context(payload)
 
@@ -924,7 +911,6 @@ with tab_performance:
     ">XGBoost · Test period: January 2023 — April 2026 · 173 weekly observations</div>
     """, unsafe_allow_html=True)
 
-    # ── Metric cards ─────────────────────────────────────────────────────
     m1, m2, m3, m4_col = st.columns(4)
     with m1:
         st.metric("R² Score", "—",
@@ -955,10 +941,8 @@ with tab_performance:
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Feature importance ────────────────────────────────────────────────
     render_feature_importance_chart()
 
-    # ── Key findings ──────────────────────────────────────────────────────
     section_label("🔬  Key SHAP Findings")
 
     findings = [
@@ -1005,10 +989,6 @@ with tab_performance:
             </div>
             """, unsafe_allow_html=True)
 
-
-# ──────────────────────────────────────────────────────────────────────────
-#  TAB 3 — ABOUT
-# ──────────────────────────────────────────────────────────────────────────
 with tab_about:
 
     col_about1, col_about2 = st.columns([5, 5])
@@ -1175,7 +1155,6 @@ with tab_about:
         """, unsafe_allow_html=True)
 
 
-# ── Footer ──────────────────────────────────────────────────────────────────
 st.markdown("""
 <div style="
     margin-top: 4rem;
